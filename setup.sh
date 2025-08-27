@@ -434,6 +434,26 @@ local main_dirs=(
             mkdir -p "/etc/aryapro/$service/$type"
         done
     done
+
+    for protocol in "${protocols[@]}"; do
+        mkdir -p "/etc/limit/$protocol"
+    done
+
+    local databases=(
+        "/etc/aryapro/vmess/.vmess.db"
+        "/etc/aryapro/vless/.vless.db"
+        "/etc/aryapro/trojan/.trojan.db"
+        "/etc/aryapro/ssh/.ssh.db"
+        "/etc/aryapro/bot/.bot.db"
+    )
+
+    for db in "${databases[@]}"; do
+        touch "$db"
+        echo "& plugin Account" >> "$db"
+    done
+
+    touch /etc/.{ssh,vmess,vless,trojan}.db
+    echo "IP=" > /var/lib/scrz-prem/ipvps.conf
 }
 
 XRAY_SETUP() {
