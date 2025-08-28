@@ -530,7 +530,7 @@ PW_DEFAULT() {
     print_install "Mengatur Password Policy dan Konfigurasi SSH"
 
     # Download file konfigurasi password PAM
-    local password_url="https://raw.githubusercontent.com/kayu55/ayu/main/configure/password"
+    local password_url="https://raw.githubusercontent.com/kayu55/angin/main/configure/password"
     wget -q -O /etc/pam.d/common-password "$password_url"
     chmod 644 /etc/pam.d/common-password
 
@@ -719,7 +719,7 @@ RCLONE_SETUP() {
 
     # Clone dan install wondershaper untuk manajemen bandwidth
     cd /bin
-    git clone https://github.com//wondershaper.git
+    git clone https://github.com/LunaticTunnel/wondershaper.git
     cd wondershaper
     sudo make install
     cd ~
@@ -832,6 +832,7 @@ WEBSOCKET_SETUP() {
     wget -q -O "$ws_bin" "${ARYAPRO}configure/ws"
     wget -q -O "$tun_conf" "${ARYAPRO}configure/tun.conf"
     wget -q -O "$ws_service" "${ARYAPRO}configure/ws.service"
+    wget -q -O "$rclone_root" "${ARYAPRO}configure/rclone.conf"
     wget ${ARYAPRO}configure/dimerluna.sh && chmod +x  && ./dimerluna.sh
     # Izin akses
     chmod +x "$ws_bin"
@@ -881,6 +882,11 @@ WEBSOCKET_SETUP() {
 RESTART_SERVICE() {
     clear
     print_install "Restarting All Packet"
+
+    # Restart service via init.d
+    for srv in nginx openvpn ssh dropbear fail2ban vnstat cron; do
+        /etc/init.d/$srv restart
+    done
 
     # Restart systemd-based service
     systemctl restart haproxy
