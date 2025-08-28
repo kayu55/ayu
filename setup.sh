@@ -175,7 +175,7 @@ touch /var/log/mail.log
 touch /var/log/user.log
 touch /var/log/cron.log
 
-mkdir -p /var/lib/scrz-prem >/dev/null 2>&1
+mkdir -p /var/lib/az >/dev/null 2>&1
 
 print_success "Direktori dan file konfigurasi Xray berhasil dibuat"
 
@@ -416,7 +416,7 @@ SSL_SETUP() {
 
 FODER_SETUP() {
 local main_dirs=(
-        "/etc/xray" "/var/lib/scrz-prem" "/etc/scrz-prem"
+        "/etc/xray" "/var/lib/az" "/etc/aryapro"
         "/etc/vmess" "/etc/vless" "/etc/trojan" "/etc/ssh"
     )
     
@@ -429,18 +429,18 @@ local main_dirs=(
         mkdir -p "$dir"
     done
 
-    for service in "${scrz-prem_subdirs[@]}"; do
-        for type in "${scrz-prem_types[@]}"; do
-            mkdir -p "/etc/scrz-prem/$service/$type"
+    for service in "${aryapro_subdirs[@]}"; do
+        for type in "${aryapro_types[@]}"; do
+            mkdir -p "/etc/aryapro/$service/$type"
         done
     done
 
     local databases=(
-        "/etc/scrz-prem/vmess/.vmess.db"
-        "/etc/scrz-prem/vless/.vless.db"
-        "/etc/scrz-prem/trojan/.trojan.db"
-        "/etc/scrz-prem/ssh/.ssh.db"
-        "/etc/scrz-prem/bot/.bot.db"
+        "/etc/aryapro/vmess/.vmess.db"
+        "/etc/aryapro/vless/.vless.db"
+        "/etc/aryapro/trojan/.trojan.db"
+        "/etc/aryapro/ssh/.ssh.db"
+        "/etc/aryapro/bot/.bot.db"
     )
 
     for db in "${databases[@]}"; do
@@ -449,7 +449,7 @@ local main_dirs=(
     done
 
     touch /etc/.{ssh,vmess,vless,trojan}.db
-    echo "IP=" > /var/lib/scrz-prem/ipvps.conf
+    echo "IP=" > /var/lib/az/ipvps.conf
 }
 
 XRAY_SETUP() {
@@ -603,9 +603,9 @@ EOF
 PSANG_UDP(){
 clear
     # Pasang dan beri izin eksekusi untuk udp-mini
-    mkdir -p /usr/local/scrz-prem
-    wget -q -O /usr/local/scrz-prem/udp-mini "${ARYAPRO}configure/udp-mini"
-    chmod +x /usr/local/scrz-prem/udp-mini
+    mkdir -p /usr/local/aryapro
+    wget -q -O /usr/local/aryapro/udp-mini "${ARYAPRO}configure/udp-mini"
+    chmod +x /usr/local/aryapro/udp-mini
 
     # Download dan pasang 3 service UDP Mini berbeda (multi-instance)
     for i in 1 2 3; do
