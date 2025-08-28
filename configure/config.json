@@ -23,7 +23,7 @@
         "clients": [
           {
             "id": "${uuid}"
-#vless
+            #vless
           }
         ]
       },
@@ -43,7 +43,7 @@
           {
             "id": "${uuid}",
             "alterId": 0
-#vmess
+            #vmess
           }
         ]
       },
@@ -63,7 +63,7 @@
         "clients": [
           {
             "password": "${uuid}"
-#trojanws
+            #trojanws
           }
         ],
         "udp": true
@@ -84,7 +84,7 @@
         "clients": [
           {
             "id": "${uuid}"
-#vlessgrpc
+            #vlessgrpc
           }
         ]
       },
@@ -104,7 +104,7 @@
           {
             "id": "${uuid}",
             "alterId": 0
-#vmessgrpc
+            #vmessgrpc
           }
         ]
       },
@@ -124,7 +124,7 @@
         "clients": [
           {
             "password": "${uuid}"
-#trojangrpc
+            #trojangrpc
           }
         ]
       },
