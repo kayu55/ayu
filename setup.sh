@@ -435,10 +435,6 @@ local main_dirs=(
         done
     done
 
-    for protocol in "${protocols[@]}"; do
-        mkdir -p "/etc/limit/$protocol"
-    done
-
     local databases=(
         "/etc/aryapro/vmess/.vmess.db"
         "/etc/aryapro/vless/.vless.db"
