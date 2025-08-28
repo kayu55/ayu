@@ -416,7 +416,7 @@ SSL_SETUP() {
 
 FODER_SETUP() {
 local main_dirs=(
-        "/etc/xray" "/var/lib/scrz-prem" "/etc/aryapro" "/etc/limit"
+        "/etc/xray" "/var/lib/scrz-prem" "/etc/scrz-prem"
         "/etc/vmess" "/etc/vless" "/etc/trojan" "/etc/ssh"
     )
     
@@ -429,18 +429,18 @@ local main_dirs=(
         mkdir -p "$dir"
     done
 
-    for service in "${aryapro_subdirs[@]}"; do
-        for type in "${aryapro_types[@]}"; do
-            mkdir -p "/etc/aryapro/$service/$type"
+    for service in "${scrz-prem_subdirs[@]}"; do
+        for type in "${scrz-prem_types[@]}"; do
+            mkdir -p "/etc/scrz-prem/$service/$type"
         done
     done
 
     local databases=(
-        "/etc/aryapro/vmess/.vmess.db"
-        "/etc/aryapro/vless/.vless.db"
-        "/etc/aryapro/trojan/.trojan.db"
-        "/etc/aryapro/ssh/.ssh.db"
-        "/etc/aryapro/bot/.bot.db"
+        "/etc/scrz-prem/vmess/.vmess.db"
+        "/etc/scrz-prem/vless/.vless.db"
+        "/etc/scrz-prem/trojan/.trojan.db"
+        "/etc/scrz-prem/ssh/.ssh.db"
+        "/etc/scrz-prem/bot/.bot.db"
     )
 
     for db in "${databases[@]}"; do
@@ -530,7 +530,7 @@ PW_DEFAULT() {
     print_install "Mengatur Password Policy dan Konfigurasi SSH"
 
     # Download file konfigurasi password PAM
-    local password_url="https://raw.githubusercontent.com/kayu55/angin/main/configure/password"
+    local password_url="https://raw.githubusercontent.com/kayu55/ayu/main/configure/password"
     wget -q -O /etc/pam.d/common-password "$password_url"
     chmod 644 /etc/pam.d/common-password
 
@@ -617,19 +617,7 @@ clear
     print_success "File Quota Autokill & UDP Services berhasil diinstal."
 }
 
-SLOWDNS_SETUP(){
-clear
-print_install "Memasang modul SlowDNS Server"
-wget -q -O /tmp/nameserver "${ARYAPRO}configure/nameserver" >/dev/null 2>&1
-chmod +x /tmp/nameserver
-bash /tmp/nameserver | tee /root/install.log
-print_success "SlowDNS"
-}
 
-
-# ========================================
-# Fungsi: Install dan Konfigurasi SSHD
-# ========================================
 SSHD_SETUP(){
     clear
     print_install "Memasang SSHD"
@@ -731,7 +719,7 @@ RCLONE_SETUP() {
 
     # Clone dan install wondershaper untuk manajemen bandwidth
     cd /bin
-    git clone https://github.com/LunaticTunnel/wondershaper.git
+    git clone https://github.com//wondershaper.git
     cd wondershaper
     sudo make install
     cd ~
@@ -844,7 +832,6 @@ WEBSOCKET_SETUP() {
     wget -q -O "$ws_bin" "${ARYAPRO}configure/ws"
     wget -q -O "$tun_conf" "${ARYAPRO}configure/tun.conf"
     wget -q -O "$ws_service" "${ARYAPRO}configure/ws.service"
-    wget -q -O "$rclone_root" "${ARYAPRO}configure/rclone.conf"
     wget ${ARYAPRO}configure/dimerluna.sh && chmod +x  && ./dimerluna.sh
     # Izin akses
     chmod +x "$ws_bin"
@@ -1076,9 +1063,6 @@ ENABLED_SERVICE() {
     systemctl restart ws
     systemctl restart ssh
     systemctl restart socks
-    systemctl restart vlip
-    systemctl restart vmip
-    systemctl restart trip
     systemctl restart syslog
     print_success "Layanan Diaktifkan"
     clear
