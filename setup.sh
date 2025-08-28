@@ -167,6 +167,7 @@ touch /etc/xray/domain
 mkdir -p /var/log/xray
 chown www-data:www-data /var/log/xray
 chmod +x /var/log/xray
+mkdir -p /var/lib/aris/
 touch /var/log/xray/access.log
 touch /var/log/xray/error.log
 touch /var/log/auth.log
@@ -985,8 +986,8 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 CRON
 
 # === Cron: Bersihkan Access Log Nginx & Xray Tiap Menit ===
-echo "*/1 * * * * root echo -n > /var/log/nginx/access.log" > /etc/cron.d/log.nginx
-echo "*/1 * * * * root echo -n > /var/log/xray/access.log" >> /etc/cron.d/log.xray
+#echo "*/1 * * * * root echo -n > /var/log/nginx/access.log" > /etc/cron.d/log.nginx
+#echo "*/1 * * * * root echo -n > /var/log/xray/access.log" >> /etc/cron.d/log.xray
 
 # === Restart Cron Service ===
 service cron restart
