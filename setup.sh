@@ -716,20 +716,6 @@ vnSTATS_SETUP(){
 
     print_success "Vnstat"
 }
-OPVPN_SETUP() {
-    clear
-    print_install "Menginstall OpenVPN"
-
-    # Unduh installer OpenVPN dari repo Anda, beri izin eksekusi, lalu jalankan
-    wget ${ARYAPRO}configure/openvpn
-    chmod +x openvpn
-    ./openvpn
-
-    # Restart layanan OpenVPN
-    /etc/init.d/openvpn restart
-
-    print_success "OpenVPN"
-}
 
 
 RCLONE_SETUP() {
@@ -1171,7 +1157,6 @@ function RUN() {
     SSHD_SETUP             # Konfigurasi SSHD
     DROPBEAR_SETUP         # Instalasi Dropbear
     vnSTATS_SETUP          # Monitoring bandwidth
-    OPVPN_SETUP            # OpenVPN
     RCLONE_SETUP           # Auto Backup system
     SWAPRAM_SETUP          # Instalasi Swap & Autoreboot
     FAIL2BAN_SETUP         # Proteksi brute-force login
