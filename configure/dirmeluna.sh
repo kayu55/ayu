@@ -9,7 +9,7 @@ dirmeluna="/etc/whoiamluna"
 
 mkdir -p $dirmeluna
 
-repo="https://raw.githubusercontent.com/kayu55/angin/main/"
+repo="https://raw.githubusercontent.com/kayu55/ayu/main/"
 
 wget -q -O $dirmeluna/ws.py "${repo}configure/ws.py"
 chmod +x $dirmeluna/ws.py
