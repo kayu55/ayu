@@ -883,10 +883,6 @@ RESTART_SERVICE() {
     clear
     print_install "Restarting All Packet"
 
-    # Restart service via init.d
-    for srv in nginx openvpn ssh dropbear fail2ban vnstat cron; do
-        /etc/init.d/$srv restart
-    done
 
     # Restart systemd-based service
     systemctl restart haproxy
@@ -903,8 +899,6 @@ RESTART_SERVICE() {
     history -c
     echo "unset HISTFILE" >> /etc/profile
 
-    # Bersihkan file temporer
-    rm -f /root/openvpn /root/key.pem /root/cert.pem
 
     print_success "All services restarted & enabled"
 }
@@ -1067,6 +1061,16 @@ ENABLED_SERVICE() {
     systemctl restart syslog
     print_success "Layanan Diaktifkan"
     clear
+}
+
+function SET_DETEK_SSH() {
+detect_os() {
+  if [[ -f /etc/os-release ]]; then
+    source /etc/os-release
+    echo "$ID $VERSION_ID"
+  else
+    echo "Unknown"
+  fi
 }
 
 os_version=$(detect_os)
