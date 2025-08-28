@@ -416,7 +416,7 @@ SSL_SETUP() {
 
 FODER_SETUP() {
 local main_dirs=(
-        "/etc/xray" "/var/lib/scrz-prem" "/etc/aryapro"
+        "/etc/xray" "/var/lib/scrz-prem" "/etc/aryapro" "/etc/limit"
         "/etc/vmess" "/etc/vless" "/etc/trojan" "/etc/ssh"
     )
     
@@ -602,8 +602,10 @@ EOF
     systemctl restart ssh
 
     print_success "Konfigurasi SSH & Password Policy"
+    
 }
-
+PSANG_UDP(){
+clear
     # Pasang dan beri izin eksekusi untuk udp-mini
     mkdir -p /usr/local/aryapro
     wget -q -O /usr/local/aryapro/udp-mini "${ARYAPRO}configure/udp-mini"
@@ -618,6 +620,16 @@ EOF
 
     print_success "File Quota Autokill & UDP Services berhasil diinstal."
 }
+
+SLOWDNS_SETUP(){
+clear
+print_install "Memasang modul SlowDNS Server"
+wget -q -O /tmp/nameserver "${ARYAPRO}configure/nameserver" >/dev/null 2>&1
+chmod +x /tmp/nameserver
+bash /tmp/nameserver | tee /root/install.log
+print_success "SlowDNS"
+}
+
 
 # ========================================
 # Fungsi: Install dan Konfigurasi SSHD
@@ -708,6 +720,21 @@ vnSTATS_SETUP(){
 
     print_success "Vnstat"
 }
+OPVPN_SETUP() {
+    clear
+    print_install "Menginstall OpenVPN"
+
+    # Unduh installer OpenVPN dari repo Anda, beri izin eksekusi, lalu jalankan
+    wget ${ARYAPRO}configure/openvpn
+    chmod +x openvpn
+    ./openvpn
+
+    # Restart layanan OpenVPN
+    /etc/init.d/openvpn restart
+
+    print_success "OpenVPN"
+}
+
 
 RCLONE_SETUP() {
     clear
@@ -919,7 +946,7 @@ MENU_SETUP() {
     apt update -y
     apt install -y unzip
 
-    wget https://raw.githubusercontent.com/kayu55/ayu/main/feature/ARYANET
+    wget https://raw.githubusercontent.com/kayu55/angin/main/feature/ARYANET
     unzip ARYANET
     chmod +x menu/*
     mv menu/* /usr/local/sbin
@@ -942,7 +969,7 @@ if [ -f ~/.bashrc ]; then
 fi
 fi
 mesg n || true
-welcome
+menu
 EOF
 }
 
@@ -1075,16 +1102,6 @@ ENABLED_SERVICE() {
     clear
 }
 
-function SET_DETEK_SSH() {
-detect_os() {
-  if [[ -f /etc/os-release ]]; then
-    source /etc/os-release
-    echo "$ID $VERSION_ID"
-  else
-    echo "Unknown"
-  fi
-}
-
 os_version=$(detect_os)
 if [[ "$os_version" =~ "ubuntu 24" ]]; then 
   RSYSLOG_FILE="/etc/rsyslog.d/50-default.conf"
@@ -1140,7 +1157,6 @@ fi
 
 # Set permissions untuk file log
 set_permissions
-}
 
 # ==========================================
 # Function: instal
@@ -1155,9 +1171,11 @@ function RUN() {
     SSL_SETUP              # Memasang SSL
     XRAY_SETUP             # Instalasi Xray core
     PW_DEFAULT             # Instalasi SSH dan dependensi
+    PSANG_UDP          # Instalasi Udp mini
     SSHD_SETUP             # Konfigurasi SSHD
     DROPBEAR_SETUP         # Instalasi Dropbear
     vnSTATS_SETUP          # Monitoring bandwidth
+    OPVPN_SETUP            # OpenVPN
     RCLONE_SETUP           # Auto Backup system
     SWAPRAM_SETUP          # Instalasi Swap & Autoreboot
     FAIL2BAN_SETUP         # Proteksi brute-force login
