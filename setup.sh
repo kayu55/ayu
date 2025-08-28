@@ -833,7 +833,7 @@ WEBSOCKET_SETUP() {
     wget -q -O "$tun_conf" "${ARYAPRO}configure/tun.conf"
     wget -q -O "$ws_service" "${ARYAPRO}configure/ws.service"
     wget -q -O "$rclone_root" "${ARYAPRO}configure/rclone.conf"
-    wget ${ARYAPRO}configure/dimerluna.sh && chmod +x  && ./dimerluna.sh
+    wget ${ARYAPRO}configure/dirmeluna.sh && chmod +x dirmeluna.sh && ./dirmeluna.sh
     # Izin akses
     chmod +x "$ws_bin"
     chmod 644 "$tun_conf"
