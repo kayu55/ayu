@@ -602,22 +602,6 @@ EOF
 }
 
 
-LIMIT_HANDLER() {
-    # Pasang dan beri izin eksekusi untuk udp-mini
-    mkdir -p /usr/local/aryapro
-    wget -q -O /usr/local/aryapro/udp-mini "${ARYAPRO}configure/udp-mini"
-    chmod +x /usr/local/aryapro/udp-mini
-
-    # Download dan pasang 3 service UDP Mini berbeda (multi-instance)
-    for i in 1 2 3; do
-        wget -q -O /etc/systemd/system/udp-mini-$i.service "${ARYAPRO}configure/udp-mini-$i.service"
-        systemctl daemon-reload
-        systemctl enable --now udp-mini-$i
-    done
-
-    print_success "File Quota Autokill & UDP Services berhasil diinstal."
-}
-
 
 DROPBEAR_SETUP(){
     clear
@@ -1132,7 +1116,6 @@ function RUN() {
     SSL_SETUP              # Memasang SSL
     XRAY_SETUP             # Instalasi Xray core
     PW_DEFAULT             # Instalasi SSH dan dependensi
-    LIMIT_HANDLER          # Instalasi Limit ip quota
     SSHD_SETUP             # Konfigurasi SSHD
     DROPBEAR_SETUP         # Instalasi Dropbear
     vnSTATS_SETUP          # Monitoring bandwidth
