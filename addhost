@@ -1,0 +1,84 @@
+#!/bin/bash
+
+# ========================================
+# CONFIGURATION
+# ========================================
+MYIP=$(curl -s ipv4.icanhazip.com)
+
+
+BIRU="\033[0;34m"
+HIJAU="\033[0;32m"
+PUTIH="\033[0;37m"
+CYANS="\033[0;36m"
+GOLD="\033[0;33m"
+RESET="\033[0m"
+
+
+function setup_domain() {
+    clear
+printf "${BIRU}────────────────────────────────────────${RESET}\n"
+echo -e "\033[0;32m          CHANGE DOMAINS VPS      \033[0m"
+printf "${BIRU}────────────────────────────────────────${RESET}\n"
+printf "${HIJAU} - ${GOLD} PASTIKAN IP SUDAH DI POINTING  ${RESET}\n"
+printf "${HIJAU} - ${GOLD} PASTIKAN DOMAIN SUPPORT TUNNEL ${RESET}\n"
+printf "${HIJAU} - ${GOLD} HINDARI SPASI DI SUBDOMAIN       ${RESET}\n"
+printf "${BIRU}────────────────────────────────────────${RESET}\n"
+echo ""
+
+    read -rp " DOMAIN: " domain
+    if [[ -z "$domain" ]]; then
+        echo -e "❗ Domain tidak boleh kosong!"
+        exit 1
+    fi
+
+    echo "$domain" > /etc/xray/domain
+    echo "$domain" > /root/domain
+    echo "IP=$domain" > /var/lib/scrz-prem/ipvps.conf
+}
+
+# ========================================
+# FUNCTION: Pasang SSL
+# ========================================
+function install_ssl() {
+    echo -e "\033[1;92mMemasang SSL Let's Encrypt...\033[0m"
+    domain=$(cat /etc/xray/domain)
+
+    # Stop any services on port 80
+    svc=$(lsof -i:80 | awk 'NR==2 {print $1}')
+    [[ -n "$svc" ]] && systemctl stop "$svc"
+    systemctl stop nginx
+    systemctl stop haproxy
+
+    # Download & install acme.sh
+    rm -rf /root/.acme.sh
+    mkdir -p /root/.acme.sh
+    curl -s https://acme-install.netlify.app/acme.sh -o /root/.acme.sh/acme.sh
+    chmod +x /root/.acme.sh/acme.sh
+
+    /root/.acme.sh/acme.sh --upgrade --auto-upgrade
+    /root/.acme.sh/acme.sh --set-default-ca --server letsencrypt
+    /root/.acme.sh/acme.sh --issue -d "$domain" --standalone -k ec-256
+
+    # Install cert to xray path
+    ~/.acme.sh/acme.sh --installcert -d "$domain" \
+        --fullchainpath /etc/xray/xray.crt \
+        --keypath /etc/xray/xray.key --ecc
+
+    chmod 600 /etc/xray/xray.key
+    systemctl restart nginx xray haproxy
+}
+
+
+# ========================================
+# MAIN EXECUTION
+# ========================================
+clear
+validate_permission
+setup_domain
+install_ssl
+
+echo ""
+echo -e "\033[1;92m✔️ Domain & SSL berhasil di-setup.\033[0m"
+echo -e "\033[1;92mKembali ke menu dalam 2 detik...\033[0m"
+sleep 2
+menu
