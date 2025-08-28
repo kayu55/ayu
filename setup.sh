@@ -175,7 +175,7 @@ touch /var/log/mail.log
 touch /var/log/user.log
 touch /var/log/cron.log
 
-mkdir -p /var/lib/az >/dev/null 2>&1
+mkdir -p /var/lib/aris >/dev/null 2>&1
 
 print_success "Direktori dan file konfigurasi Xray berhasil dibuat"
 
@@ -416,7 +416,7 @@ SSL_SETUP() {
 
 FODER_SETUP() {
 local main_dirs=(
-        "/etc/xray" "/var/lib/az" "/etc/aryapro"
+        "/etc/xray" "/var/lib/aris" "/etc/aryapro"
         "/etc/vmess" "/etc/vless" "/etc/trojan" "/etc/ssh"
     )
     
@@ -449,7 +449,7 @@ local main_dirs=(
     done
 
     touch /etc/.{ssh,vmess,vless,trojan}.db
-    echo "IP=" > /var/lib/az/ipvps.conf
+    echo "IP=" > /var/lib/aris/ipvps.conf
 }
 
 XRAY_SETUP() {
@@ -530,7 +530,7 @@ PW_DEFAULT() {
     print_install "Mengatur Password Policy dan Konfigurasi SSH"
 
     # Download file konfigurasi password PAM
-    local password_url="https://raw.githubusercontent.com/kayu55/angin/main/configure/password"
+    local password_url="https://raw.githubusercontent.com/kayu55/ayu/main/configure/password"
     wget -q -O /etc/pam.d/common-password "$password_url"
     chmod 644 /etc/pam.d/common-password
 
@@ -883,6 +883,10 @@ RESTART_SERVICE() {
     clear
     print_install "Restarting All Packet"
 
+    # Restart service via init.d
+    for srv in nginx openvpn ssh dropbear fail2ban vnstat cron; do
+        /etc/init.d/$srv restart
+    done
 
     # Restart systemd-based service
     systemctl restart haproxy
@@ -899,6 +903,8 @@ RESTART_SERVICE() {
     history -c
     echo "unset HISTFILE" >> /etc/profile
 
+    # Bersihkan file temporer
+    rm -f /root/openvpn /root/key.pem /root/cert.pem
 
     print_success "All services restarted & enabled"
 }
@@ -1057,7 +1063,7 @@ ENABLED_SERVICE() {
     systemctl restart dropbear
     systemctl restart ws
     systemctl restart ssh
-    systemctl restart socks
+    #systemctl restart socks
     systemctl restart syslog
     print_success "Layanan Diaktifkan"
     clear
