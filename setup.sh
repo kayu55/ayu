@@ -928,7 +928,7 @@ MENU_SETUP() {
     apt update -y
     apt install -y unzip
 
-    wget https://raw.githubusercontent.com/kayu55/angin/main/feature/ARYANET
+    wget https://raw.githubusercontent.com/kayu55/ayu/main/feature/ARYANET
     unzip ARYANET
     chmod +x menu/*
     mv menu/* /usr/local/sbin
