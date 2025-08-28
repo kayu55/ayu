@@ -175,7 +175,7 @@ touch /var/log/mail.log
 touch /var/log/user.log
 touch /var/log/cron.log
 
-mkdir -p /var/lib/aris >/dev/null 2>&1
+mkdir -p /var/lib/az >/dev/null 2>&1
 
 print_success "Direktori dan file konfigurasi Xray berhasil dibuat"
 
@@ -416,11 +416,11 @@ SSL_SETUP() {
 
 FODER_SETUP() {
 local main_dirs=(
-        "/etc/xray" "/var/lib/aris" "/etc/aryapro"
+        "/etc/xray" "/var/lib/az" "/etc/aryapro"
         "/etc/vmess" "/etc/vless" "/etc/trojan" "/etc/ssh"
     )
     
-    local aryapro_subdirs=("vmess" "vless" "trojan" "ssh" "bot")
+    local aryapro_subdirs=("vmess" "vless" "trojan" "ssh")
     local aryapro_types=("usage" "ip" "detail")
 
     local protocols=("vmess" "vless" "trojan" "ssh")
@@ -435,7 +435,6 @@ local main_dirs=(
         done
     done
 
-    
     local databases=(
         "/etc/aryapro/vmess/.vmess.db"
         "/etc/aryapro/vless/.vless.db"
@@ -450,7 +449,7 @@ local main_dirs=(
     done
 
     touch /etc/.{ssh,vmess,vless,trojan}.db
-    echo "IP=" > /var/lib/aris/ipvps.conf
+    echo "IP=" > /var/lib/az/ipvps.conf
 }
 
 XRAY_SETUP() {
@@ -599,10 +598,46 @@ EOF
     systemctl restart ssh
 
     print_success "Konfigurasi SSH & Password Policy"
+    
+}
+PSANG_UDP(){
+clear
+    # Pasang dan beri izin eksekusi untuk udp-mini
+    mkdir -p /usr/local/aryapro
+    wget -q -O /usr/local/aryapro/udp-mini "${ARYAPRO}configure/udp-mini"
+    chmod +x /usr/local/aryapro/udp-mini
+
+    # Download dan pasang 3 service UDP Mini berbeda (multi-instance)
+    for i in 1 2 3; do
+        wget -q -O /etc/systemd/system/udp-mini-$i.service "${ARYAPRO}configure/udp-mini-$i.service"
+        systemctl daemon-reload
+        systemctl enable --now udp-mini-$i
+    done
+
+    print_success "File Quota Autokill & UDP Services berhasil diinstal."
 }
 
 
+SSHD_SETUP(){
+    clear
+    print_install "Memasang SSHD"
 
+    # Download konfigurasi SSH dari repo
+    wget -q -O /etc/ssh/sshd_config "${ARYAPRO}configure/sshd" >/dev/null 2>&1
+
+    # Atur permission file konfigurasi
+    chmod 700 /etc/ssh/sshd_config
+
+    # Restart layanan SSH
+    /etc/init.d/ssh restart
+    systemctl restart ssh
+
+    print_success "SSHD"
+}
+
+# ========================================
+# Fungsi: Install dan Konfigurasi Dropbear
+# ========================================
 DROPBEAR_SETUP(){
     clear
     print_install "Menginstall Dropbear"
@@ -848,10 +883,6 @@ RESTART_SERVICE() {
     clear
     print_install "Restarting All Packet"
 
-    # Restart service via init.d
-    for srv in nginx openvpn ssh dropbear fail2ban vnstat cron; do
-        /etc/init.d/$srv restart
-    done
 
     # Restart systemd-based service
     systemctl restart haproxy
@@ -868,8 +899,6 @@ RESTART_SERVICE() {
     history -c
     echo "unset HISTFILE" >> /etc/profile
 
-    # Bersihkan file temporer
-    rm -f /root/openvpn /root/key.pem /root/cert.pem
 
     print_success "All services restarted & enabled"
 }
@@ -950,8 +979,8 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 CRON
 
 # === Cron: Bersihkan Access Log Nginx & Xray Tiap Menit ===
-#echo "*/1 * * * * root echo -n > /var/log/nginx/access.log" > /etc/cron.d/log.nginx
-#echo "*/1 * * * * root echo -n > /var/log/xray/access.log" >> /etc/cron.d/log.xray
+echo "*/1 * * * * root echo -n > /var/log/nginx/access.log" > /etc/cron.d/log.nginx
+echo "*/1 * * * * root echo -n > /var/log/xray/access.log" >> /etc/cron.d/log.xray
 
 # === Restart Cron Service ===
 service cron restart
@@ -1028,10 +1057,7 @@ ENABLED_SERVICE() {
     systemctl restart dropbear
     systemctl restart ws
     systemctl restart ssh
-    $systemctl restart socks
-    #systemctl restart vlip
-    $systemctl restart vmip
-    #systemctl restart trip
+    systemctl restart socks
     systemctl restart syslog
     print_success "Layanan Diaktifkan"
     clear
@@ -1116,6 +1142,7 @@ function RUN() {
     SSL_SETUP              # Memasang SSL
     XRAY_SETUP             # Instalasi Xray core
     PW_DEFAULT             # Instalasi SSH dan dependensi
+    PSANG_UDP          # Instalasi Udp mini
     SSHD_SETUP             # Konfigurasi SSHD
     DROPBEAR_SETUP         # Instalasi Dropbear
     vnSTATS_SETUP          # Monitoring bandwidth
