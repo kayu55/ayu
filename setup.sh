@@ -167,7 +167,6 @@ touch /etc/xray/domain
 mkdir -p /var/log/xray
 chown www-data:www-data /var/log/xray
 chmod +x /var/log/xray
-mkdir -p /var/lib/aris/
 touch /var/log/xray/access.log
 touch /var/log/xray/error.log
 touch /var/log/auth.log
@@ -421,7 +420,7 @@ local main_dirs=(
         "/etc/vmess" "/etc/vless" "/etc/trojan" "/etc/ssh"
     )
     
-    local aryapro_subdirs=("vmess" "vless" "trojan" "ssh")
+    local aryapro_subdirs=("vmess" "vless" "trojan" "ssh" "bot")
     local aryapro_types=("usage" "ip" "detail")
 
     local protocols=("vmess" "vless" "trojan" "ssh")
@@ -436,6 +435,7 @@ local main_dirs=(
         done
     done
 
+    
     local databases=(
         "/etc/aryapro/vmess/.vmess.db"
         "/etc/aryapro/vless/.vless.db"
@@ -531,7 +531,7 @@ PW_DEFAULT() {
     print_install "Mengatur Password Policy dan Konfigurasi SSH"
 
     # Download file konfigurasi password PAM
-    local password_url="https://raw.githubusercontent.com/kayu55/ayu/main/configure/password"
+    local password_url="https://raw.githubusercontent.com/kayu55/angin/main/configure/password"
     wget -q -O /etc/pam.d/common-password "$password_url"
     chmod 644 /etc/pam.d/common-password
 
@@ -599,10 +599,10 @@ EOF
     systemctl restart ssh
 
     print_success "Konfigurasi SSH & Password Policy"
-    
 }
-PSANG_UDP(){
-clear
+
+
+LIMIT_HANDLER() {
     # Pasang dan beri izin eksekusi untuk udp-mini
     mkdir -p /usr/local/aryapro
     wget -q -O /usr/local/aryapro/udp-mini "${ARYAPRO}configure/udp-mini"
@@ -619,26 +619,6 @@ clear
 }
 
 
-SSHD_SETUP(){
-    clear
-    print_install "Memasang SSHD"
-
-    # Download konfigurasi SSH dari repo
-    wget -q -O /etc/ssh/sshd_config "${ARYAPRO}configure/sshd" >/dev/null 2>&1
-
-    # Atur permission file konfigurasi
-    chmod 700 /etc/ssh/sshd_config
-
-    # Restart layanan SSH
-    /etc/init.d/ssh restart
-    systemctl restart ssh
-
-    print_success "SSHD"
-}
-
-# ========================================
-# Fungsi: Install dan Konfigurasi Dropbear
-# ========================================
 DROPBEAR_SETUP(){
     clear
     print_install "Menginstall Dropbear"
@@ -1064,7 +1044,10 @@ ENABLED_SERVICE() {
     systemctl restart dropbear
     systemctl restart ws
     systemctl restart ssh
-    #systemctl restart socks
+    $systemctl restart socks
+    #systemctl restart vlip
+    $systemctl restart vmip
+    #systemctl restart trip
     systemctl restart syslog
     print_success "Layanan Diaktifkan"
     clear
@@ -1149,7 +1132,7 @@ function RUN() {
     SSL_SETUP              # Memasang SSL
     XRAY_SETUP             # Instalasi Xray core
     PW_DEFAULT             # Instalasi SSH dan dependensi
-    PSANG_UDP          # Instalasi Udp mini
+    LIMIT_HANDLER          # Instalasi Limit ip quota
     SSHD_SETUP             # Konfigurasi SSHD
     DROPBEAR_SETUP         # Instalasi Dropbear
     vnSTATS_SETUP          # Monitoring bandwidth
